@@ -1,12 +1,12 @@
 name: Maven Build and Publish
 
 on:
-  workflow_dispatch:
-#  push:
-#    branches:
-#      - main
+  push:
+    branches:
+      - main
 
 jobs:
+  # Job 1: Build the Maven project and save artifacts
   build:
     runs-on: ubuntu-latest
 
@@ -21,14 +21,15 @@ jobs:
         java-version: '17'
 
     - name: Build with Maven
-      run: mvn clean package -DskipTests
+      run: mvn -f mvn-java/pom.xml clean package -DskipTests
 
     - name: Save build artifacts
       uses: actions/upload-artifact@v3
       with:
         name: built-artifact
-        path: target/*.jar
+        path: mvn-java/target/*.jar
 
+  # Job 2: Publish artifact to GitHub Packages
   publish:
     needs: build  # This ensures that 'publish' runs after 'build'
     runs-on: ubuntu-latest
@@ -49,9 +50,10 @@ jobs:
         java-version: '17'
 
     - name: Publish to GitHub Packages
-      run: mvn deploy
+      run: mvn -f mvn-java/pom.xml deploy
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # Set up Maven to use GitHub Packages
         MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
 
     - name: Configure Maven for GitHub Packages

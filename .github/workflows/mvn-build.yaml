@@ -27,7 +27,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: built-artifact
-        path: mvn-java/target/*.jar
+        path: ./target/*.jar
 
   # Job 2: Publish artifact to GitHub Packages
   publish:

@@ -70,7 +70,10 @@ jobs:
   docker:
     needs: build
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: read
+      packages: write
+      
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4

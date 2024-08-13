@@ -50,7 +50,7 @@ jobs:
         java-version: '17'
 
     - name: Publish to GitHub Packages
-      run: mvn -f mvn-java/pom.xml deploy
+      run: mvn -f ./pom.xml deploy
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         # Set up Maven to use GitHub Packages

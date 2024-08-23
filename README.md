@@ -29,20 +29,22 @@ package - build
 #### Combined Mermaid Chart
 
 ```mermaid
-graph TD;
+graph LR;
     A[Create Feature Branch] --> B[Develop Feature];
     B --> C[Create PR to Main];
     C -->|PR Created| D[Deploy to Dev];
     D --> E[Validate in Dev];
     E -->|Approve| F[Merge to Main];
-    
     F --> G[Deploy to Stage];
     G --> H[Create Draft Release Tag];
     H --> I[Validate in Stage];
-    I -->|Publish Tag| J[Final Release Tag Created];
+```
 
-    J --> L[Approval Gate];
-    L -->|Approve UAT| M[Deploy to UAT];
-    L -->|Approve Prod| N[Deploy to Prod];
-    L -->|Reject UAT| O[Cancel UAT Deployment];
-    L -->|Reject Prod| P[Cancel Prod Deployment];
+```mermaid
+graph LR;
+    I[Validate in Stage] -->|Publish Tag| J[Final Release Tag Created];
+    J --> K[Approval Gate];
+    K -->|Approve UAT| L[Deploy to UAT];
+    K -->|Approve Prod| M[Deploy to Prod];
+    K -->|Reject UAT| N[Cancel UAT Deployment];
+    K -->|Reject Prod| O[Cancel Prod Deployment];

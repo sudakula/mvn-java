@@ -26,25 +26,27 @@ package - build
 9. **Publish Tag**: Publishing the tag creates the final release tag.
 10. **Deploy to UAT/Prod**: The final release tag triggers deployments to the UAT and Production environments. An approval gate controls whether the deployment proceeds or is canceled.
 
-#### Combined Mermaid Chart
+#### Mermaid Chart
 
 ```mermaid
-graph LR;
-    A[Create Feature Branch] --> B[Develop Feature];
-    B --> C[Create PR to Main];
-    C -->|PR Created| D[Deploy to Dev];
-    D --> E[Validate in Dev];
-    E -->|Approve| F[Merge to Main];
-    F --> G[Deploy to Stage];
-    G --> H[Create Draft Release Tag];
-    H --> I[Validate in Stage];
+gitGraph
+   commit id: "Start Main Branch" tag: "main"
+   branch feature
+   commit id: "Feature Development"
+   commit id: "More Feature Work"
+   checkout main
+   merge feature id: "Merge Feature to Main"
+   commit id: "Deploy to Stage" tag: "draft-release"
+   commit id: "Validate in Stage"
 ```
 
 ```mermaid
-graph LR;
-    I[Validate in Stage] -->|Publish Tag| J[Final Release Tag Created];
-    J --> K[Approval Gate];
-    K -->|Approve UAT| L[Deploy to UAT];
-    K -->|Approve Prod| M[Deploy to Prod];
-    K -->|Reject UAT| N[Cancel UAT Deployment];
-    K -->|Reject Prod| O[Cancel Prod Deployment];
+gitGraph
+   commit id: "Publish Final Tag" tag: "v1.0.0"
+   branch UAT
+   commit id: "Deploy to UAT"
+   branch PROD
+   commit id: "Deploy to Prod"
+   checkout main
+   commit id: "Continue Development"
+```

@@ -1,0 +1,38 @@
+name: Ansible Deploy with Java Validation
+
+on:
+  # push:
+  #   branches:
+  #     - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout the repository code
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    # Install Ansible on the GitHub runner
+    - name: Install Ansible
+      run: |
+        sudo apt update
+        sudo apt install -y ansible
+
+    # Set up SSH key to connect to the remote server
+    - name: Setup SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    # Run the Ansible playbook to validate Java, install if necessary, copy artifact, and start the JAR
+    - name: Run Ansible playbook
+      run: |
+        ansible-playbook -i ${{ secrets.REMOTE_HOST }}, -u ${{ secrets.REMOTE_USER }} playbook.yml
+      env:
+        REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+        REMOTE_USER: ${{ secrets.REMOTE_USER }}

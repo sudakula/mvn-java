@@ -1,0 +1,54 @@
+name: Deploy Java 21 Application with Ansible
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'zulu'
+        java-version: '21'
+
+    - name: Build the Maven project
+      run: mvn clean package -DskipTests
+
+    - name: Upload the JAR artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: java-artifact
+        path: ./target/*.jar
+
+  deploy:
+    runs-on: self-hosted
+    needs: build
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Download the JAR artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: java-artifact
+
+    - name: Move JAR to temp location
+      run: mv java-artifact/target/*.jar /tmp/java-artifact.jar
+
+    - name: Prepare Ansible Inventory
+      run: |
+        echo "[remote]" > /tmp/inventory
+        echo "<remote_server_ip> ansible_user=${{ secrets.ANSIBLE_USERNAME }} ansible_password=${{ secrets.ANSIBLE_PASSWORD }}" >> /tmp/inventory
+
+    - name: Run Ansible Playbook
+      run: ansible-playbook -i /tmp/inventory /tmp/playbook.yml
+      env:
+        ANSIBLE_HOST_KEY_CHECKING: "False"

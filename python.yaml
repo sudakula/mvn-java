@@ -1,0 +1,56 @@
+name: CI Pipeline with Python
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  install-and-use-python:
+    runs-on: self-hosted  # Specify that this job runs on your self-hosted runner
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Install Dependencies
+        run: |
+          # Install development tools and libraries
+          sudo yum groupinstall -y "Development Tools"
+          sudo yum install -y openssl-devel bzip2-devel libffi-devel
+
+          # Set up a temporary directory for Python installation
+          export PYTHON_DIR=$HOME/python-install
+          mkdir -p $PYTHON_DIR
+
+          # Download and install Python
+          wget https://www.python.org/ftp/python/3.x.x/Python-3.x.x.tgz
+          tar xzf Python-3.x.x.tgz
+          cd Python-3.x.x
+          ./configure --prefix=$PYTHON_DIR --enable-optimizations
+          make altinstall
+          cd ..
+          rm -rf Python-3.x.x*  # Cleanup downloaded files
+
+      - name: Add Python to PATH
+        run: echo "$HOME/python-install/bin" >> $GITHUB_PATH
+
+      - name: Verify Python Installation
+        run: python3.x --version  # Replace 3.x with the version installed
+
+      - name: Install Pip
+        run: |
+          curl -O https://bootstrap.pypa.io/get-pip.py
+          python3.x get-pip.py --user  # Install pip for the current user
+          rm get-pip.py  # Cleanup pip installer
+
+      - name: Install Ansible
+        run: |
+          pip install --upgrade pip
+          pip install --user ansible  # Install Ansible for the current user
+
+      - name: Verify Ansible Installation
+        run: ansible --version
+
+      - name: Cleanup Python Installation
+        run: rm -rf $PYTHON_DIR  # Remove the Python installation directory

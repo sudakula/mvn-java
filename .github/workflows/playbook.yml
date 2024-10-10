@@ -1,0 +1,36 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+
+    # Check if Java is installed
+    - name: Check if Java is installed
+      command: java -version
+      ignore_errors: yes
+      register: java_installed
+
+    # Install Java if not present
+    - name: Install Java if not present
+      apt:
+        name: default-jdk
+        state: present
+      when: java_installed.failed
+
+    # Create the target directory for the JAR file
+    - name: Create target directory
+      file:
+        path: /opt/myapp
+        state: directory
+        mode: '0755'
+
+    # Copy the JAR file from local to the remote target machine
+    - name: Copy JAR file to the target location
+      copy:
+        src: ./target/myapp.jar  # Local path of the JAR file in the GitHub runner
+        dest: /opt/myapp/myapp.jar  # Target path on the remote machine
+
+    # Start the JAR process
+    - name: Start the Java JAR application
+      command: java -jar /opt/myapp/myapp.jar &
+      args:
+        chdir: /opt/myapp

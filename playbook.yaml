@@ -1,0 +1,26 @@
+---
+- name: Validate Java 21 installation and deploy the JAR
+  hosts: remote
+  become: true
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+  tasks:
+    - name: Check if Java 21 is installed
+      shell: java -version
+      register: java_installed
+      ignore_errors: yes
+
+    - name: Install Java 21 if not present
+      yum:
+        name: java-21-openjdk
+        state: present
+      when: java_installed.rc != 0
+
+    - name: Copy the JAR artifact to the target location
+      copy:
+        src: /tmp/java-artifact.jar
+        dest: /opt/application/app.jar
+        mode: '0755'
+
+    - name: Start the Java 21 application
+      shell: nohup java -jar /opt/application/app.jar > /dev/null 2>&1 &

@@ -63,7 +63,7 @@ jobs:
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ env.UPLOAD_URL }}
-        asset_path: ./target/mvn-java-*.jar
+        asset_path: target/mvn-java-*.jar
         asset_name: built-artifact
         asset_content_type: application/java-archive
 

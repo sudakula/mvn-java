@@ -56,6 +56,7 @@ jobs:
       run: |
         UPLOAD_URL=$(gh api repos/${{ github.repository }}/releases/tags/${{ github.ref_name }} --jq '.upload_url')
         echo "UPLOAD_URL=${UPLOAD_URL}" >> $GITHUB_ENV
+        mv target/mvn-java-*.jar temp/mvn-java-${{ github.ref_name }}.jar
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -63,7 +64,7 @@ jobs:
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ env.UPLOAD_URL }}
-        asset_path: target/mvn-java-1.0-SNAPSHOT.jar
-        asset_name: built-artifact
+        asset_path: temp/mvn-java-${{ github.ref_name }}.jar
+        asset_name: mvn-java-${{ github.ref_name }}.jar
         asset_content_type: application/java-archive
 

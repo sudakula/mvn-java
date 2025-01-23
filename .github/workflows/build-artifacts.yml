@@ -6,7 +6,7 @@ on:
       - 'v*.*.*'
 
 env:
-  GITHUB-token: ${{ secrets.GITHUB_TOKEN }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
 jobs:
@@ -56,6 +56,8 @@ jobs:
       run: |
         UPLOAD_URL=$(gh api repos/${{ github.repository }}/releases/tags/${{ github.ref_name }} --jq '.upload_url')
         echo "UPLOAD_URL=${UPLOAD_URL}" >> $GITHUB_ENV
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Save build artifacts
       uses: actions/upload-release-asset@v1

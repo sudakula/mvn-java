@@ -76,9 +76,9 @@ jobs:
     strategy:
       matrix:
         environment: [qa,uat,prod]
+    environment:
+      name: ${{ matrix.environment }}
     steps:
     - name: Deploy to ${{ matrix.environment }}
-      env:
-        DEPLOY_ENV: ${{ matrix.environment }}
       run:
         echo "Deploy to ${{matrix.environment }}"

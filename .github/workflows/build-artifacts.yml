@@ -58,7 +58,7 @@ jobs:
         echo "UPLOAD_URL=${UPLOAD_URL}" >> $GITHUB_ENV
         mkdir -p temp
         ls -al
-        echo ${{ github.event.workflow_run.id }}
+        echo ${{ github.run_id }}
         mv target/mvn-java-*.jar temp/mvn-java-${{ github.ref_name }}.jar
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

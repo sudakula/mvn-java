@@ -91,7 +91,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release download ${{ github.ref }} \
+          gh release download ${{ github.ref_name }} \
             --repo ${{ github.repository }} \
             --pattern "mvn-java-${{ github.ref_name }}.jar" \
             --dir ./artifacts

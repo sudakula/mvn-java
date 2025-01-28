@@ -71,14 +71,25 @@ jobs:
         asset_content_type: application/java-archive
 
   deploy:
-    needs: [ build-and-upload]
+    needs: [build-and-upload]
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        environment: [qa,uat,prod]
+        environment: [qa, uat, prod]
     environment:
       name: ${{ matrix.environment }}
     steps:
-    - name: Deploy to ${{ matrix.environment }}
-      run:
-        echo "Deploy to ${{matrix.environment }}"
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: mvn-java-${{ github.ref_name }}.jar
+
+      - name: Deploy to ${{ matrix.environment }}
+        run: |
+          echo "Deploying to ${{ matrix.environment }}"
+          ls -lh mvn-java-${{ github.ref_name }}.jar
+          # Example deployment command:
+          # scp mvn-java-${{ github.ref_name }}.jar user@server:/deploy/path/

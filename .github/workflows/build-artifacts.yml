@@ -83,18 +83,31 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Download release artifact
-        uses: dawidd6/action-download-release-asset@v2
-        with:
-          repository: ${{ github.repository }}
-          tag: ${{ github.ref }}
-          asset_name: mvn-java-${{ github.ref_name }}.jar
-          token: ${{ secrets.GITHUB_TOKEN }}
-          path: ./artifacts
-
-      - name: Deploy to ${{ matrix.environment }}
+      - name: Authenticate with GitHub CLI
         run: |
-          echo "Deploying to ${{ matrix.environment }}"
+          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+
+      - name: Download release artifact
+        run: |
+          gh release download ${{ github.ref }} \
+            --repo ${{ github.repository }} \
+            --pattern "mvn-java-${{ github.ref_name }}.jar" \
+            --dir ./artifacts
           ls -lh ./artifacts
-          # Example deployment command:
-          # scp ./artifacts/<artifact_name> user@server:/deploy/path/
+
+
+      # - name: Download release artifact
+      #   uses: dawidd6/action-download-release-asset@v2
+      #   with:
+      #     repo: ${{ github.repository }}
+      #     tag: ${{ github.ref }}
+      #     asset_name: mvn-java-${{ github.ref_name }}.jar
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      #     path: ./artifacts
+
+      # - name: Deploy to ${{ matrix.environment }}
+      #   run: |
+      #     echo "Deploying to ${{ matrix.environment }}"
+      #     ls -lh ./artifacts
+      #     # Example deployment command:
+      #     # scp ./artifacts/<artifact_name> user@server:/deploy/path/

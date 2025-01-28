@@ -82,14 +82,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Download build artifacts
-        uses: actions/download-artifact@v3
+      - name: Download build artifact from triggered workflow
+        uses: dawidd6/action-download-artifact@v2
         with:
+          run_id: ${{ github.event.workflow_run.id }}
           name: mvn-java-${{ github.ref_name }}.jar
+          path: ./artifacts
+          search_artifacts: true
 
       - name: Deploy to ${{ matrix.environment }}
         run: |
           echo "Deploying to ${{ matrix.environment }}"
-          ls -lh mvn-java-${{ github.ref_name }}.jar
+          ls -lh ./artifacts
           # Example deployment command:
-          # scp mvn-java-${{ github.ref_name }}.jar user@server:/deploy/path/
+          # scp ./artifacts/<artifact_name> user@server:/deploy/path/

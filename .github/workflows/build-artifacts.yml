@@ -83,13 +83,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Download build artifact from triggered workflow
-        uses: dawidd6/action-download-artifact@v2
+      - name: Download release artifact
+        uses: dawidd6/action-download-release-asset@v2
         with:
-          run_id: ${{ github.event.workflow_run.id }}
-          name: mvn-java-${{ github.ref_name }}.jar
+          repository: ${{ github.repository }}
+          tag: ${{ github.ref }}
+          asset_name: mvn-java-${{ github.ref_name }}.jar
+          token: ${{ secrets.GITHUB_TOKEN }}
           path: ./artifacts
-          search_artifacts: true
 
       - name: Deploy to ${{ matrix.environment }}
         run: |

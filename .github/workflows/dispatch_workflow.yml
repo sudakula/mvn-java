@@ -1,0 +1,47 @@
+name: Deploy From Tag
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Enter the tag to deploy (e.g., v1.2.3)"
+        required: true
+        type: string
+
+jobs:
+  validate-tag:
+    name: Validate Tag
+    runs-on: ubuntu-latest
+    outputs:
+      tag-valid: ${{ steps.check-tag.outputs.tag-valid }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Check if tag exists
+        id: check-tag
+        run: |
+          TAG_EXISTS=$(git tag -l "${{ github.event.inputs.tag }}")
+          if [ -z "$TAG_EXISTS" ]; then
+            echo "Tag '${{ github.event.inputs.tag }}' does not exist."
+            exit 1
+          else
+            echo "✅ Tag '${{ github.event.inputs.tag }}' exists."
+            echo "tag-valid=true" >> $GITHUB_OUTPUT
+          fi
+
+  deploy-uat:
+    name: Deploy to UAT
+    needs: validate-tag
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy UAT
+        run: echo "Deploying tag '${{ github.event.inputs.tag }}' to UAT..."
+
+  deploy-prod:
+    name: Deploy to PROD
+    needs: deploy-uat
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy PROD
+        run: echo "Deploying tag '${{ github.event.inputs.tag }}' to PROD..."

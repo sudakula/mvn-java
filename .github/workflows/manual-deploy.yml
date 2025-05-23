@@ -15,26 +15,34 @@ on:
           - qa2
 
 jobs:
-  block-if-not-main:
-    runs-on: ubuntu-latest
-    if: github.ref != 'refs/heads/main'
-    steps:
-      - run: |
-          echo "❌ This workflow must only be triggered from the 'main' branch."
-          exit 1
-
   validate-tag:
     runs-on: ubuntu-latest
-    needs: block-if-not-main
-    if: github.ref == 'refs/heads/main'
     outputs:
-      tag: ${{ inputs.tag }}
-      env: ${{ inputs.env }}
+      validated_tag: ${{ steps.set-vars.outputs.tag }}
+      validated_env: ${{ steps.set-vars.outputs.env }}
     steps:
-      - name: Checkout code
+      - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Fetch all tags
+          fetch-depth: 0
+
+      - name: Print job inputs
+        id: set-vars
+        run: |
+          echo "📝 Inputs received:"
+          echo "Tag: ${{ inputs.tag }}"
+          echo "Environment: ${{ inputs.env }}"
+          echo "tag=${{ inputs.tag }}" >> $GITHUB_OUTPUT
+          echo "env=${{ inputs.env }}" >> $GITHUB_OUTPUT
+
+      - name: Fail if not on main
+        run: |
+          echo "🔒 Verifying branch..."
+          if [ "${GITHUB_REF}" != "refs/heads/main" ]; then
+            echo "❌ This workflow must be run from the 'main' branch. Current: $GITHUB_REF"
+            exit 1
+          fi
+          echo "✅ Running from main branch."
 
       - name: Validate tag exists
         run: |
@@ -50,7 +58,7 @@ jobs:
     name: Deploy to QA1
     runs-on: ubuntu-latest
     needs: validate-tag
-    if: ${{ github.ref == 'refs/heads/main' && inputs.env == 'qa1' }}
+    if: github.ref == 'refs/heads/main' && inputs.env == 'qa1'
     steps:
       - name: Deploy logic for QA1
         run: echo "🚀 Deploying tag '${{ inputs.tag }}' to QA1"
@@ -59,7 +67,7 @@ jobs:
     name: Deploy to QA2
     runs-on: ubuntu-latest
     needs: validate-tag
-    if: ${{ github.ref == 'refs/heads/main' && inputs.env == 'qa2' }}
+    if: github.ref == 'refs/heads/main' && inputs.env == 'qa2'
     steps:
       - name: Deploy logic for QA2
         run: echo "🚀 Deploying tag '${{ inputs.tag }}' to QA2"

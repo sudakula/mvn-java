@@ -34,7 +34,7 @@ jobs:
           echo "Environment: ${{ inputs.env }}"
           echo "tag=${{ inputs.tag }}" >> $GITHUB_OUTPUT
           echo "env=${{ inputs.env }}" >> $GITHUB_OUTPUT
-          echo "Selected ${{ inputs.tag }} to deploy in ${{ inputs.env }}" >> $GITHUB_SUMMARY
+          echo "Selected ${{ inputs.tag }} to deploy in ${{ inputs.env }}" >> $GITHUB_STEP_SUMMARY
 
       - name: Fail if not on main
         run: |

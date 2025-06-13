@@ -1,0 +1,18 @@
+filter {
+  grok {
+    match => {
+      "message" => "%{TIMESTAMP_ISO8601:log_timestamp}(?: correlationId:%{UUID:correlation_id})?(?: icnNumber:\s*%{DATA:icn_number})? %{JAVAFILE:class_info}\(%{JAVACLASS:source_class}:%{INT:source_line}\) %{LOGLEVEL:log_level}.*? %{GREEDYDATA:log_message}"
+    }
+  }
+
+  grok {
+    match => { "log_message" => "event\.action:\s*%{DATA:event_action}" }
+    tag_on_failure => []
+  }
+
+  if [event_action] {
+    mutate {
+      replace => { "log_message" => "%{event_action}" }
+    }
+  }
+}

@@ -16,3 +16,28 @@ filter {
     }
   }
 }
+
+
+
+# Step 1: GROK to extract fields
+grok {
+  match => {
+    "message" => "%{TIMESTAMP_ISO8601:log_timestamp}(?: correlationId:%{UUID:correlation_id})?(?: icnNumber:%{DATA:icn_number})? %{JAVAFILE:class_info}\(%{JAVACLASS:source_class}:%{INT:source_line}\) %{LOGLEVEL:log_level}%{GREEDYDATA:log_message}"
+  }
+  tag_on_failure => ["grok_failure_main"]
+}
+
+# Step 2: Remove { ... } blocks from log_message
+mutate {
+  gsub => [
+    "log_message", "\{[^}]*\}", ""  # removes content within { } including the braces
+  ]
+}
+
+# Step 3: Extract event.action if it exists
+grok {
+  match => {
+    "log_message" => "event\.action:\s*%{DATA:event_action}"
+  }
+  tag_on_failure => ["grok_failure_event_action"]  # Add failure tag if event.action not found
+}

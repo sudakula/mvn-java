@@ -11,7 +11,7 @@ on:
 jobs:
   validate-tag:
     name: Validate Tag
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     outputs:
       tag-valid: ${{ steps.check-tag.outputs.tag-valid }}
     steps:
@@ -33,7 +33,7 @@ jobs:
   deploy-uat:
     name: Deploy to UAT
     needs: validate-tag
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Deploy UAT
         run: echo "Deploying tag '${{ github.event.inputs.tag }}' to UAT..."
@@ -41,7 +41,7 @@ jobs:
   deploy-prod:
     name: Deploy to PROD
     needs: deploy-uat
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Deploy PROD
         run: echo "Deploying tag '${{ github.event.inputs.tag }}' to PROD..."

@@ -1,0 +1,91 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "title": "ICN Status Flow",
+  "width": 800,
+  "height": 150,
+
+  "params": [
+    {
+      "name": "icn_number",
+      "value": "12345"     // 👈 default, replace or tie to Kibana filter later
+    }
+  ],
+
+  "data": [
+    {
+      "name": "status",
+      "url": {
+        "%context%": true,
+        "%timefield%": "@timestamp",
+        "index": "your-index-name",
+        "body": {
+          "size": 0,
+          "query": {
+            "bool": {
+              "must": [
+                { "term": { "icn_number.keyword": { "param": "icn_number" } } }
+              ]
+            }
+          },
+          "aggs": {
+            "actions": {
+              "terms": { "field": "event_action.keyword", "size": 10 }
+            }
+          }
+        }
+      },
+      "format": { "property": "aggregations.actions.buckets" }
+    },
+    {
+      "name": "blocks",
+      "values": [
+        { "block": "block1", "x": 50 },
+        { "block": "block2", "x": 200 },
+        { "block": "block3", "x": 350 },
+        { "block": "block4", "x": 500 },
+        { "block": "block5", "x": 650 }
+      ]
+    }
+  ],
+
+  "marks": [
+    {
+      "type": "rect",
+      "from": { "data": "blocks" },
+      "encode": {
+        "enter": {
+          "x": { "field": "x" },
+          "y": { "value": 50 },
+          "width": { "value": 100 },
+          "height": { "value": 60 },
+          "stroke": { "value": "black" },
+          "strokeWidth": { "value": 2 }
+        },
+        "update": {
+          "fill": [
+            {
+              "test": "indata('status', 'key', datum.block + ' completed')",
+              "value": "green"
+            },
+            { "value": "white" }
+          ]
+        }
+      }
+    },
+    {
+      "type": "text",
+      "from": { "data": "blocks" },
+      "encode": {
+        "enter": {
+          "x": { "signal": "datum.x + 50" },
+          "y": { "value": 80 },
+          "align": { "value": "center" },
+          "baseline": { "value": "middle" },
+          "text": { "field": "block" },
+          "fontSize": { "value": 14 },
+          "fill": { "value": "black" }
+        }
+      }
+    }
+  ]
+}

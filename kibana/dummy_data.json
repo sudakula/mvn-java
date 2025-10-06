@@ -1,23 +1,23 @@
 {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "title": "ICN Progress PoC with Status and Timestamps",
-  "width": 1000,
-  "height": 250,
+  "title": "ICN Progress PoC - Vertical",
+  "width": 200,
+  "height": 600,
 
   "data": [
     {
       "name": "blocks",
       "values": [
-        {"block": "block 1", "x": 40, "status": "finished", "timestamp": "2025-10-05 10:15"},
-        {"block": "block 2", "x": 140, "status": "finished", "timestamp": "2025-10-05 10:30"},
-        {"block": "block 3", "x": 240, "status": "in-progress", "timestamp": "2025-10-05 11:00"},
-        {"block": "block 4", "x": 340, "status": "pending"},
-        {"block": "block 5", "x": 440, "status": "pending"},
-        {"block": "block 6", "x": 540, "status": "pending"},
-        {"block": "block 7", "x": 640, "status": "pending"},
-        {"block": "block 8", "x": 740, "status": "pending"},
-        {"block": "block 9", "x": 840, "status": "pending"},
-        {"block": "block 10", "x": 940, "status": "pending"}
+        {"block": "block 1", "y": 40, "status": "finished", "timestamp": "2025-10-05 10:15"},
+        {"block": "block 2", "y": 140, "status": "finished", "timestamp": "2025-10-05 10:30"},
+        {"block": "block 3", "y": 240, "status": "in-progress", "timestamp": "2025-10-05 11:00"},
+        {"block": "block 4", "y": 340, "status": "pending"},
+        {"block": "block 5", "y": 440, "status": "pending"},
+        {"block": "block 6", "y": 540, "status": "pending"},
+        {"block": "block 7", "y": 640, "status": "pending"},
+        {"block": "block 8", "y": 740, "status": "pending"},
+        {"block": "block 9", "y": 840, "status": "pending"},
+        {"block": "block 10", "y": 940, "status": "pending"}
       ]
     }
   ],
@@ -28,10 +28,10 @@
       "from": {"data": "blocks"},
       "encode": {
         "enter": {
-          "x": {"field": "x"},
-          "y": {"value": 60},
-          "width": {"value": 80},
-          "height": {"value": 60},
+          "x": {"value": 60},
+          "y": {"field": "y"},
+          "width": {"value": 100},
+          "height": {"value": 50},
           "stroke": {"value": "black"},
           "strokeWidth": {"value": 1}
         },
@@ -49,8 +49,8 @@
       "from": {"data": "blocks"},
       "encode": {
         "enter": {
-          "x": {"signal": "datum.x + 40"},
-          "y": {"value": 90},
+          "x": {"value": 110},
+          "y": {"signal": "datum.y + 25"},
           "align": {"value": "center"},
           "baseline": {"value": "middle"},
           "text": {"field": "block"},
@@ -64,8 +64,8 @@
       "from": {"data": "blocks"},
       "encode": {
         "enter": {
-          "x": {"signal": "datum.x + 40"},
-          "y": {"value": 130},
+          "x": {"value": 110},
+          "y": {"signal": "datum.y + 55"},
           "align": {"value": "center"},
           "baseline": {"value": "top"},
           "text": {"signal": "datum.timestamp || ''"},

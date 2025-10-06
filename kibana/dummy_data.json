@@ -1,28 +1,51 @@
 {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "title": "ICN Progress PoC - Vertical",
-  "width": 200,
+  "title": "ICN Progress PoC - Dynamic Width",
+  "width": 600,
   "height": 600,
 
   "data": [
     {
       "name": "blocks",
       "values": [
-        {"block": "block 1", "y": 40, "status": "finished", "timestamp": "2025-10-05 10:15"},
-        {"block": "block 2", "y": 140, "status": "finished", "timestamp": "2025-10-05 10:30"},
-        {"block": "block 3", "y": 240, "status": "in-progress", "timestamp": "2025-10-05 11:00"},
+        {"block": "block 1 - validation complete", "y": 40, "status": "finished", "timestamp": "2025-10-05 10:15"},
+        {"block": "block 2 - validation started", "y": 140, "status": "finished", "timestamp": "2025-10-05 10:30"},
+        {"block": "block 3 - in progress", "y": 240, "status": "in-progress", "timestamp": "2025-10-05 11:00"},
         {"block": "block 4", "y": 340, "status": "pending"},
-        {"block": "block 5", "y": 440, "status": "pending"},
-        {"block": "block 6", "y": 540, "status": "pending"},
-        {"block": "block 7", "y": 640, "status": "pending"},
-        {"block": "block 8", "y": 740, "status": "pending"},
-        {"block": "block 9", "y": 840, "status": "pending"},
-        {"block": "block 10", "y": 940, "status": "pending"}
+        {"block": "block 5", "y": 440, "status": "pending"}
       ]
     }
   ],
 
+  "signals": [
+    {
+      "name": "padding",
+      "value": 20
+    }
+  ],
+
   "marks": [
+    // Hidden text to measure width
+    {
+      "type": "text",
+      "from": {"data": "blocks"},
+      "encode": {
+        "enter": {
+          "text": {"field": "block"},
+          "fontSize": {"value": 12}
+        },
+        "update": {
+          "x": {"value": 0},
+          "y": {"value": 0},
+          "opacity": {"value": 0}
+        }
+      },
+      "transform": [
+        {"type": "formula", "as": "textWidth", "expr": "width(datum)"}
+      ]
+    },
+
+    // Rectangles with dynamic width
     {
       "type": "rect",
       "from": {"data": "blocks"},
@@ -30,7 +53,6 @@
         "enter": {
           "x": {"value": 60},
           "y": {"field": "y"},
-          "width": {"value": 100},
           "height": {"value": 50},
           "stroke": {"value": "black"},
           "strokeWidth": {"value": 1}
@@ -40,18 +62,21 @@
             {"test": "datum.status === 'finished'", "value": "#00c853"},
             {"test": "datum.status === 'in-progress'", "value": "#ffeb3b"},
             {"value": "#bdbdbd"}
-          ]
+          ],
+          "width": {"signal": "datum.block.length * 8 + padding"}
         }
       }
     },
+
+    // Block labels
     {
       "type": "text",
       "from": {"data": "blocks"},
       "encode": {
         "enter": {
-          "x": {"value": 110},
+          "x": {"signal": "60 + 5"},
           "y": {"signal": "datum.y + 25"},
-          "align": {"value": "center"},
+          "align": {"value": "left"},
           "baseline": {"value": "middle"},
           "text": {"field": "block"},
           "fontSize": {"value": 12},
@@ -59,14 +84,16 @@
         }
       }
     },
+
+    // Timestamps
     {
       "type": "text",
       "from": {"data": "blocks"},
       "encode": {
         "enter": {
-          "x": {"value": 110},
+          "x": {"signal": "60 + 5"},
           "y": {"signal": "datum.y + 55"},
-          "align": {"value": "center"},
+          "align": {"value": "left"},
           "baseline": {"value": "top"},
           "text": {"signal": "datum.timestamp || ''"},
           "fontSize": {"value": 10},

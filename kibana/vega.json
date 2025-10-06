@@ -3,15 +3,18 @@
   "title": "ICN Progress Tracker",
   "width": 1000,
   "height": 200,
+
   "params": [
     {
       "name": "icn_number",
-      "value": "12345"  // Default ICN; can be replaced dynamically
+      "value": "12345",
+      "bind": {"input": "text", "placeholder": "Enter ICN number"}
     }
   ],
+
   "data": [
     {
-      "name": "status",
+      "name": "status_raw",
       "url": {
         "index": "sample index",
         "body": {
@@ -28,60 +31,75 @@
           }
         }
       },
-      "format": { "property": "aggregations.actions.buckets" }
+      "format": {"property": "aggregations.actions.buckets"},
+      "on": [
+        {
+          "trigger": "icn_number",
+          "remove": true,
+          "insert": [{"icn_number": {"signal": "icn_number"}}]
+        }
+      ]
+    },
+    {
+      "name": "status",
+      "source": "status_raw",
+      "transform": [
+        {"type": "formula", "as": "key", "expr": "datum.key || ''"}
+      ]
     },
     {
       "name": "blocks",
       "values": [
-        { "block": "block 1", "x": 40 },
-        { "block": "block 2", "x": 140 },
-        { "block": "block 3", "x": 240 },
-        { "block": "block 4", "x": 340 },
-        { "block": "block 5", "x": 440 },
-        { "block": "block 6", "x": 540 },
-        { "block": "block 7", "x": 640 },
-        { "block": "block 8", "x": 740 },
-        { "block": "block 9", "x": 840 },
-        { "block": "block 10", "x": 940 }
+        {"block": "block 1", "x": 40},
+        {"block": "block 2", "x": 140},
+        {"block": "block 3", "x": 240},
+        {"block": "block 4", "x": 340},
+        {"block": "block 5", "x": 440},
+        {"block": "block 6", "x": 540},
+        {"block": "block 7", "x": 640},
+        {"block": "block 8", "x": 740},
+        {"block": "block 9", "x": 840},
+        {"block": "block 10", "x": 940}
       ]
     }
   ],
+
   "marks": [
     {
       "type": "rect",
-      "from": { "data": "blocks" },
+      "from": {"data": "blocks"},
       "encode": {
         "enter": {
-          "x": { "field": "x" },
-          "y": { "value": 60 },
-          "width": { "value": 80 },
-          "height": { "value": 60 },
-          "stroke": { "value": "black" },
-          "strokeWidth": { "value": 1 }
+          "x": {"field": "x"},
+          "y": {"value": 60},
+          "width": {"value": 80},
+          "height": {"value": 60},
+          "stroke": {"value": "black"},
+          "strokeWidth": {"value": 1}
         },
         "update": {
           "fill": [
             {
               "test": "indata('status', 'key', datum.block + ' finished') || indata('status', 'key', datum.block + ' completed') || indata('status', 'key', datum.block + ' validated')",
-              "value": '#00c853'   // green if block done
+              "value": '#00c853'
             },
-            { "value": "#bdbdbd" } // gray otherwise
+            {"value": '#bdbdbd'}
           ]
         }
       }
     },
     {
       "type": "text",
-      "from": { "data": "blocks" },
+      "from": {"data": "blocks"},
       "encode": {
         "enter": {
-          "x": { "signal": "datum.x + 40" },
-          "y": { "value": 90 },
-          "align": { "value": "center" },
-          "baseline": { "value": "middle" },
-          "text": { "field": "block" },
-          "fontSize": { "value": 12 },
-          "fill": { "value": "black" }
+          "x": {"signal": "datum.x + 40"},
+          "y": {"value": 90},
+          "align": {"value": "center"},
+          "baseline": {"value": "middle"},
+          "text": {"field": "block"},
+          "fontSize": {"value": 12},
+          "fill": {"value": "black"}
         }
       }
     }

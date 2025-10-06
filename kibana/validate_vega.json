@@ -1,0 +1,48 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "title": "ICN Actions - Minimal",
+  "width": 500,
+  "height": 200,
+
+  "params": [
+    {
+      "name": "icn_number",
+      "value": "12345",
+      "bind": {"input": "text", "placeholder": "Enter ICN number"}
+    }
+  ],
+
+  "data": [
+    {
+      "name": "logs",
+      "url": {
+        "index": "nextgen Services",
+        "body": {
+          "size": 50,
+          "query": {
+            "query_string": {
+              "query": "icn_number:\"${icn_number}\""
+            }
+          }
+        }
+      },
+      "format": {"property": "hits.hits"}
+    }
+  ],
+
+  "marks": [
+    {
+      "type": "text",
+      "from": {"data": "logs"},
+      "encode": {
+        "enter": {
+          "x": {"value": 20},
+          "y": {"signal": "20 + 20*datum._index"},
+          "text": {"signal": "datum._source['event.action']"},
+          "fill": {"value": "black"},
+          "fontSize": {"value": 12}
+        }
+      }
+    }
+  ]
+}

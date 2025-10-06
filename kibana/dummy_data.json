@@ -1,51 +1,28 @@
 {
   "$schema": "https://vega.github.io/schema/vega/v5.json",
-  "title": "ICN Progress PoC - Dynamic Width",
+  "title": "ICN Progress PoC - Vertical Dynamic Width",
   "width": 600,
   "height": 600,
+
+  "signals": [
+    {"name": "padding", "value": 20}
+  ],
 
   "data": [
     {
       "name": "blocks",
       "values": [
         {"block": "block 1 - validation complete", "y": 40, "status": "finished", "timestamp": "2025-10-05 10:15"},
-        {"block": "block 2 - validation started", "y": 140, "status": "finished", "timestamp": "2025-10-05 10:30"},
-        {"block": "block 3 - in progress", "y": 240, "status": "in-progress", "timestamp": "2025-10-05 11:00"},
-        {"block": "block 4", "y": 340, "status": "pending"},
-        {"block": "block 5", "y": 440, "status": "pending"}
+        {"block": "block 2 - validation started", "y": 120, "status": "finished", "timestamp": "2025-10-05 10:30"},
+        {"block": "block 3 - in progress", "y": 200, "status": "in-progress", "timestamp": "2025-10-05 11:00"},
+        {"block": "block 4 - waiting for approval", "y": 280, "status": "pending"},
+        {"block": "block 5 - pending task", "y": 360, "status": "pending"},
+        {"block": "block 6", "y": 440, "status": "pending"}
       ]
-    }
-  ],
-
-  "signals": [
-    {
-      "name": "padding",
-      "value": 20
     }
   ],
 
   "marks": [
-    // Hidden text to measure width
-    {
-      "type": "text",
-      "from": {"data": "blocks"},
-      "encode": {
-        "enter": {
-          "text": {"field": "block"},
-          "fontSize": {"value": 12}
-        },
-        "update": {
-          "x": {"value": 0},
-          "y": {"value": 0},
-          "opacity": {"value": 0}
-        }
-      },
-      "transform": [
-        {"type": "formula", "as": "textWidth", "expr": "width(datum)"}
-      ]
-    },
-
-    // Rectangles with dynamic width
     {
       "type": "rect",
       "from": {"data": "blocks"},
@@ -67,8 +44,6 @@
         }
       }
     },
-
-    // Block labels
     {
       "type": "text",
       "from": {"data": "blocks"},
@@ -84,8 +59,6 @@
         }
       }
     },
-
-    // Timestamps
     {
       "type": "text",
       "from": {"data": "blocks"},

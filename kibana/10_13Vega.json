@@ -1,0 +1,119 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "title": "ICN Workflow Status",
+  "config": { "axis": { "labelFontSize": 13 } },
+
+  "params": [
+    {
+      "name": "icn",
+      "value": "",
+      "bind": { "input": "text", "placeholder": "Enter ICN number" }
+    }
+  ],
+
+  "data": [
+    {
+      "name": "icn_logs",
+      "url": {
+        "index": "nextgen Services",
+        "body": {
+          "size": 1000,
+          "query": {
+            "bool": {
+              "must": [
+                { "term": { "icn_number.keyword": { "value": {"%icn%": "param"} } } },
+                { "exists": { "field": "event.action" } }
+              ]
+            }
+          },
+          "_source": ["icn_number", "event.action"]
+        }
+      },
+      "format": { "property": "hits.hits" },
+      "transform": [
+        {
+          "type": "formula",
+          "as": "action",
+          "expr": "datum._source['event.action']"
+        }
+      ]
+    },
+    {
+      "name": "blocks",
+      "values": [
+        {"block": "Block 1"},
+        {"block": "Block 2"},
+        {"block": "Block 3"},
+        {"block": "Block 4"},
+        {"block": "Block 5"},
+        {"block": "Block 6"},
+        {"block": "Block 7"},
+        {"block": "Block 8"},
+        {"block": "Block 9"},
+        {"block": "Block 10"}
+      ],
+      "transform": [
+        {
+          "type": "lookup",
+          "from": "icn_logs",
+          "key": "block",
+          "fields": ["block"],
+          "as": ["log_match"],
+          "default": null,
+          "values": [{"expr": "icn_logs"}]
+        },
+        {
+          "type": "formula",
+          "as": "color",
+          "expr": "icn_logs.filter(x => x.action && x.action.indexOf(datum.block) >= 0 && x.action.match(/finished/i)).length > 0 ? 'green' : 'lightgray'"
+        }
+      ]
+    }
+  ],
+
+  "width": 300,
+  "height": 400,
+
+  "scales": [
+    {
+      "name": "y",
+      "type": "band",
+      "domain": {"data": "blocks", "field": "block"},
+      "range": "height",
+      "padding": 0.2
+    }
+  ],
+
+  "marks": [
+    {
+      "type": "rect",
+      "from": {"data": "blocks"},
+      "encode": {
+        "enter": {
+          "x": {"value": 20},
+          "width": {"value": 250},
+          "y": {"scale": "y", "field": "block"},
+          "height": {"scale": "y", "band": 1},
+          "cornerRadius": {"value": 5},
+          "stroke": {"value": "#ccc"},
+          "fill": {"field": "color"}
+        }
+      }
+    },
+    {
+      "type": "text",
+      "from": {"data": "blocks"},
+      "encode": {
+        "enter": {
+          "x": {"value": 30},
+          "y": {"scale": "y", "field": "block", "band": 0.5},
+          "align": {"value": "left"},
+          "baseline": {"value": "middle"},
+          "fill": {"value": "black"},
+          "text": {"field": "block"},
+          "fontSize": {"value": 14}
+        }
+      }
+    }
+  ]
+}
